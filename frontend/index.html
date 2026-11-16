@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CycloneVision AI | Multi-Source Satellite Fusion</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Fullscreen Map Background -->
+  <div id="map"></div>
+
+  <!-- Top Floating Header HUD -->
+  <header class="hud-header glass-panel">
+    <div class="brand">
+      <span class="live-dot"></span>
+      <div>
+        <h1>CYCLONE VISION <span class="badge">AI FUSION</span></h1>
+        <p>All-Weather Identification, Classification & Trajectory Engine</p>
+      </div>
+    </div>
+    <div class="header-meta">
+      <div class="meta-item">
+        <span class="label">BASIN</span>
+        <span class="value">NORTH INDIAN OCEAN</span>
+      </div>
+      <div class="meta-item">
+        <span class="label">ACTIVE SYSTEM</span>
+        <span class="value alert-text">BOB-04 (SEVERE)</span>
+      </div>
+      <div class="meta-item">
+        <span class="label">FUSION STATUS</span>
+        <span class="value success-text">SAR + INSAT-3DR</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Left Floating Telemetry & AI Sidebar -->
+  <aside class="hud-sidebar glass-panel">
+    <!-- Classification Card -->
+    <div class="card severity-card">
+      <div class="card-header">
+        <span>AI CLASSIFICATION</span>
+        <span class="confidence-pill" id="confidence">96.4% CONF</span>
+      </div>
+      <h2 id="storm-category">CATEGORY 4</h2>
+      <p class="sub-status" id="storm-desc">Extremely Severe Cyclonic Storm</p>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 85%;"></div>
+      </div>
+    </div>
+
+    <!-- Live Metrics Grid -->
+    <div class="metrics-grid">
+      <div class="metric-box">
+        <span class="metric-label">MAX WIND</span>
+        <span class="metric-val mono" id="wind">215 <small>km/h</small></span>
+      </div>
+      <div class="metric-box">
+        <span class="metric-label">PRESSURE</span>
+        <span class="metric-val mono" id="pressure">942 <small>hPa</small></span>
+      </div>
+      <div class="metric-box">
+        <span class="metric-label">LATITUDE</span>
+        <span class="metric-val mono" id="lat">15.80° N</span>
+      </div>
+      <div class="metric-box">
+        <span class="metric-label">LONGITUDE</span>
+        <span class="metric-val mono" id="lon">85.40° E</span>
+      </div>
+    </div>
+
+    <!-- Multi-Source Satellite Sensor Switcher -->
+    <div class="card">
+      <div class="card-header">
+        <span>SATELLITE FUSION LAYER</span>
+      </div>
+      <div class="sensor-buttons">
+        <button class="sensor-btn active" data-mode="sar">
+          <strong>SAR C-Band</strong>
+          <span>Cloud-Penetrating Radar</span>
+        </button>
+        <button class="sensor-btn" data-mode="ir">
+          <strong>Thermal IR</strong>
+          <span>Cloud-Top Temp (-82°C)</span>
+        </button>
+        <button class="sensor-btn" data-mode="wv">
+          <strong>Water Vapor</strong>
+          <span>Mid-Troposphere Moisture</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Legend -->
+    <div class="card legend-card">
+      <div class="card-header"><span>TRACK & WIND RADII</span></div>
+      <div class="legend-item"><span class="line solid-blue"></span> Historical Track (Observed)</div>
+      <div class="legend-item"><span class="line dashed-red"></span> AI Predicted Path (+48h)</div>
+      <div class="legend-item"><span class="dot red-glow"></span> Hurricane Force (>118 km/h)</div>
+      <div class="legend-item"><span class="dot orange-glow"></span> Gale Force (>62 km/h)</div>
+    </div>
+  </aside>
+
+  <!-- Bottom Floating Timeline Scrubber -->
+  <div class="hud-timeline glass-panel">
+    <div class="timeline-header">
+      <span class="timeline-title">TRAJECTORY TIMELINE SCRUBBER</span>
+      <span class="mono timestamp-display" id="time-label">T+00h (CURRENT EYE POSITION)</span>
+    </div>
+    <input type="range" id="time-slider" min="0" max="6" value="3" step="1" />
+    <div class="timeline-ticks mono">
+      <span>-36h</span>
+      <span>-24h</span>
+      <span>-12h</span>
+      <span class="now-tick">NOW</span>
+      <span>+12h</span>
+      <span>+24h</span>
+      <span>+48h</span>
+    </div>
+  </div>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
