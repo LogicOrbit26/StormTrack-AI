@@ -1,128 +1,437 @@
-// 1. Initialize Dark Command-Center Map centered on Bay of Bengal
-const map = L.map('map', {
-  zoomControl: true
-}).setView([15.8, 84.8], 6);
+:root {
+  --bg-main: #0e1117;
+  --bg-sidebar: #161b22;
+  --bg-card: #1c2128;
+  --border-color: #30363d;
+  --text-primary: #f0f6fc;
+  --text-secondary: #8b949e;
+  --accent-blue: #38bdf8;
+  --accent-orange: #f97316;
+  --accent-red: #ef4444;
+  --accent-green: #10b981;
+}
 
-L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-  attribution: '&copy; OpenStreetMap &copy; CARTO',
-  maxZoom: 18
-}).addTo(map);
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', sans-serif;
+}
 
-// 2. Time-Series Cyclone Dataset (Past Observations + AI Forecast)
-// Later, your teammates' Python backend will send an array just like this!
-const stormTimeline = [
-  { time: "T-36h (OBSERVED)", lat: 12.1, lon: 88.5, wind: 110, pressure: 982, cat: "CATEGORY 1", desc: "Severe Cyclonic Storm", conf: "98.1%" },
-  { time: "T-24h (OBSERVED)", lat: 13.3, lon: 87.4, wind: 145, pressure: 968, cat: "CATEGORY 2", desc: "Very Severe Cyclonic Storm", conf: "97.5%" },
-  { time: "T-12h (OBSERVED)", lat: 14.5, lon: 86.3, wind: 185, pressure: 954, cat: "CATEGORY 3", desc: "Very Severe Cyclonic Storm", conf: "97.0%" },
-  { time: "T+00h (CURRENT EYE)", lat: 15.8, lon: 85.4, wind: 215, pressure: 942, cat: "CATEGORY 4", desc: "Extremely Severe Cyclonic Storm", conf: "96.4%" },
-  { time: "T+12h (AI FORECAST)", lat: 17.0, lon: 84.6, wind: 225, pressure: 936, cat: "CATEGORY 4", desc: "Peak Intensity Approaching Coast", conf: "91.8%" },
-  { time: "T+24h (AI FORECAST)", lat: 18.2, lon: 83.9, wind: 195, pressure: 950, cat: "CATEGORY 3", desc: "Landfall Imminent near Visakhapatnam", conf: "86.2%" },
-  { time: "T+48h (AI FORECAST)", lat: 19.6, lon: 83.1, wind: 120, pressure: 978, cat: "CATEGORY 1", desc: "Overland Weakening Phase", conf: "79.5%" }
-];
+.mono {
+  font-family: 'JetBrains Mono', monospace;
+}
 
-// 3. Draw Historical Track (Indices 0 to 3) & Predicted Track (Indices 3 to 6)
-const pastCoords = stormTimeline.slice(0, 4).map(p => [p.lat, p.lon]);
-const futureCoords = stormTimeline.slice(3).map(p => [p.lat, p.lon]);
+body {
+  background-color: var(--bg-main);
+  color: var(--text-primary);
+}
 
-L.polyline(pastCoords, {
-  color: '#38bdf8',
-  weight: 3.5,
-  opacity: 0.9
-}).addTo(map);
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+}
 
-L.polyline(futureCoords, {
-  color: '#ef4444',
-  weight: 3.5,
-  dashArray: '8, 8',
-  opacity: 0.9
-}).addTo(map);
+/* Left Sidebar */
+.sidebar {
+  width: 310px;
+  background-color: var(--bg-sidebar);
+  border-right: 1px solid var(--border-color);
+  padding: 24px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
 
-// Plot small nodes along the track
-stormTimeline.forEach((pt, idx) => {
-  L.circleMarker([pt.lat, pt.lon], {
-    radius: 4,
-    color: idx <= 3 ? '#38bdf8' : '#ef4444',
-    fillColor: '#0f172a',
-    fillOpacity: 1,
-    weight: 2
-  }).addTo(map).bindTooltip(`${pt.time}: ${pt.wind} km/h`);
-});
+.sidebar-header h2 {
+  font-size: 1.05rem;
+  font-weight: 700;
+}
 
-// 4. Create Pulsing Cyclone Eye Marker & Wind Radii Zones
-const eyeIcon = L.divIcon({
-  className: 'cyclone-eye-icon',
-  html: '<div class="eye-ring"></div><div class="eye-core"></div>',
-  iconSize: [48, 48],
-  iconAnchor: [24, 24]
-});
+.control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
 
-let currentPoint = stormTimeline[3];
-const eyeMarker = L.marker([currentPoint.lat, currentPoint.lon], { icon: eyeIcon }).addTo(map);
+.control-group label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
 
-// Outer Gale-Force Wind Ring (Orange)
-const galeRing = L.circle([currentPoint.lat, currentPoint.lon], {
-  radius: 220000, // 220 km
-  color: '#f97316',
-  fillColor: '#f97316',
-  fillOpacity: 0.08,
-  weight: 1.5,
-  dashArray: '4, 4'
-}).addTo(map);
+select {
+  background: var(--bg-card);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  outline: none;
+  cursor: pointer;
+}
 
-// Inner Hurricane-Force Wind Ring (Red)
-const hurricaneRing = L.circle([currentPoint.lat, currentPoint.lon], {
-  radius: 95000, // 95 km
-  color: '#ef4444',
-  fillColor: '#ef4444',
-  fillOpacity: 0.22,
-  weight: 2
-}).addTo(map);
+select:focus {
+  border-color: var(--accent-blue);
+}
 
-// 5. Interactive Timeline Scrubber Logic
-const slider = document.getElementById('time-slider');
-slider.addEventListener('input', (e) => {
-  const index = parseInt(e.target.value, 10);
-  const data = stormTimeline[index];
+.slider-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
 
-  // Move Marker & Wind Rings
-  const newLatLng = [data.lat, data.lon];
-  eyeMarker.setLatLng(newLatLng);
-  galeRing.setLatLng(newLatLng);
-  hurricaneRing.setLatLng(newLatLng);
+.badge-cyan {
+  background: rgba(56, 189, 248, 0.15);
+  color: var(--accent-blue);
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
 
-  // Scale wind ring radius dynamically based on wind speed
-  hurricaneRing.setRadius(data.wind * 450);
-  galeRing.setRadius(data.wind * 1050);
+input[type="range"] {
+  width: 100%;
+  accent-color: var(--accent-red);
+  cursor: pointer;
+}
 
-  // Update Sidebar Telemetry Readouts
-  document.getElementById('time-label').textContent = data.time;
-  document.getElementById('storm-category').textContent = data.cat;
-  document.getElementById('storm-desc').textContent = data.desc;
-  document.getElementById('confidence').textContent = `${data.conf} CONF`;
-  document.getElementById('wind').innerHTML = `${data.wind} <small>km/h</small>`;
-  document.getElementById('pressure').innerHTML = `${data.pressure} <small>hPa</small>`;
-  document.getElementById('lat').textContent = `${data.lat.toFixed(2)}° N`;
-  document.getElementById('lon').textContent = `${data.lon.toFixed(2)}° E`;
+.slider-ticks {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
 
-  map.panTo(newLatLng, { animate: true });
-});
+.fusion-pills {
+  display: flex;
+  gap: 6px;
+}
 
-// 6. Multi-Source Satellite Sensor Mode Switcher
-const sensorColors = {
-  sar: { inner: '#ef4444', outer: '#f97316' }, // Radar Red/Orange
-  ir:  { inner: '#a855f7', outer: '#38bdf8' }, // Thermal Purple/Cyan
-  wv:  { inner: '#10b981', outer: '#06b6d4' }  // Moisture Emerald/Teal
-};
+.fusion-btn {
+  flex: 1;
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+  padding: 8px 6px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
 
-document.querySelectorAll('.sensor-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.sensor-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
+.fusion-btn.active {
+  background: rgba(56, 189, 248, 0.18);
+  color: var(--accent-blue);
+  border-color: var(--accent-blue);
+}
 
-    const mode = btn.getAttribute('data-mode');
-    const palette = sensorColors[mode];
+.sidebar-info-box {
+  margin-top: auto;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 14px;
+  font-size: 0.8rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
 
-    hurricaneRing.setStyle({ color: palette.inner, fillColor: palette.inner });
-    galeRing.setStyle({ color: palette.outer, fillColor: palette.outer });
-  });
-});
+.sidebar-info-box h4 {
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+
+/* Main Content */
+.main-content {
+  flex: 1;
+  padding: 28px 36px;
+  max-width: 1280px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.page-header h1 {
+  font-size: 1.85rem;
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+
+.caption {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+/* KPI Grid */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.kpi-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.kpi-label {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+}
+
+.kpi-value {
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+/* Alert Banner */
+.alert-banner {
+  padding: 14px 18px;
+  border-radius: 8px;
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+.alert-high {
+  background: rgba(239, 68, 68, 0.16);
+  border: 1px solid rgba(239, 68, 68, 0.45);
+  color: #fca5a5;
+}
+
+.alert-moderate {
+  background: rgba(245, 158, 11, 0.16);
+  border: 1px solid rgba(245, 158, 11, 0.45);
+  color: #fcd34d;
+}
+
+/* Section Blocks */
+.section-block {
+  background: var(--bg-sidebar);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.section-block h2 {
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+/* Map */
+.map-wrapper {
+  position: relative;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+}
+
+#map {
+  height: 440px;
+  width: 100%;
+  background: #091322;
+}
+
+.map-legend {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  z-index: 1000;
+  background: rgba(14, 17, 23, 0.88);
+  border: 1px solid var(--border-color);
+  padding: 8px 14px;
+  border-radius: 8px;
+  display: flex;
+  gap: 16px;
+  font-size: 0.78rem;
+}
+
+.dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 5px;
+}
+
+.dot.blue { background: #38bdf8; }
+.dot.orange { background: #f97316; }
+.dot.red { background: #ef4444; }
+
+/* Expander & Tables */
+.expander {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 12px 16px;
+}
+
+.expander summary {
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.table-container {
+  overflow-x: auto;
+  margin-top: 12px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+th, td {
+  padding: 10px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+}
+
+th {
+  color: var(--text-secondary);
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.risk-pill {
+  padding: 3px 10px;
+  border-radius: 99px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.risk-high { background: rgba(239, 68, 68, 0.2); color: #fca5a5; }
+.risk-mod  { background: rgba(245, 158, 11, 0.2); color: #fcd34d; }
+.risk-low  { background: rgba(16, 185, 129, 0.2); color: #6ee7b7; }
+
+/* Bulletin Section */
+.bulletin-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 20px;
+  align-items: center;
+}
+
+.primary-btn, .danger-btn {
+  width: 100%;
+  padding: 12px 16px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.primary-btn {
+  background: #2563eb;
+  color: white;
+}
+
+.danger-btn {
+  background: #dc2626;
+  color: white;
+}
+
+.primary-btn:hover, .danger-btn:hover {
+  opacity: 0.9;
+}
+
+.helper-text {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  margin-top: 8px;
+}
+
+.advisory-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 14px 18px;
+}
+
+.advisory-box h4 {
+  font-size: 0.88rem;
+  margin-bottom: 8px;
+  color: var(--accent-blue);
+}
+
+.advisory-box ul {
+  padding-left: 18px;
+  font-size: 0.83rem;
+  line-height: 1.65;
+  color: #cbd5e1;
+}
+
+/* Two Column Bottom Grid */
+.two-col-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.broadcast-message-box {
+  background: var(--bg-card);
+  border-left: 4px solid var(--accent-orange);
+  padding: 14px;
+  border-radius: 6px;
+  font-size: 0.88rem;
+  line-height: 1.6;
+}
+
+.ri-metrics {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.ri-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  padding: 12px;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ri-box span {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.ri-box strong {
+  font-size: 1.1rem;
+}
+
+.text-red { color: var(--accent-red); }
+
+.ri-drivers {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 14px;
+  font-size: 0.84rem;
+  line-height: 1.8;
+}
+
+@media (max-width: 960px) {
+  .app-layout { flex-direction: column; }
+  .sidebar { width: 100%; height: auto; position: static; }
+  .kpi-grid, .bulletin-grid, .two-col-grid { grid-template-columns: 1fr; }
+}
