@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CycloneAI: Tracking & Early Warning System</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app-layout">
+    <!-- Left Sidebar Controls -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h2>🌀 Storm & Simulation Controls</h2>
+      </div>
+
+      <div class="control-group">
+        <label for="storm-select">Select Cyclone Event</label>
+        <select id="storm-select">
+          <option value="AMPHAN">AMPHAN (2020 - Bay of Bengal)</option>
+          <option value="BIPARJOY">BIPARJOY (2023 - Arabian Sea)</option>
+          <option value="FANI">FANI (2019 - Bay of Bengal)</option>
+          <option value="MICHAUNG">MICHAUNG (2023 - Bay of Bengal)</option>
+          <option value="TAUKTAE">TAUKTAE (2021 - Arabian Sea)</option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <div class="slider-label-row">
+          <label for="timeline-slider">Simulation Timeline (Observation Point)</label>
+          <span class="mono badge-cyan" id="point-counter">Point 18 / 24</span>
+        </div>
+        <input type="range" id="timeline-slider" min="1" max="24" value="18" />
+        <div class="slider-ticks mono">
+          <span>1</span>
+          <span>12</span>
+          <span>24</span>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label>Multi-Source Satellite Fusion Layer</label>
+        <div class="fusion-pills">
+          <button class="fusion-btn active" data-layer="sar">SAR C-Band</button>
+          <button class="fusion-btn" data-layer="ir">INSAT-3DR IR</button>
+          <button class="fusion-btn" data-layer="wv">Water Vapor</button>
+        </div>
+      </div>
+
+      <div class="sidebar-info-box">
+        <h4>AI Model Pipeline</h4>
+        <p><strong>Fusion Engine:</strong> Multi-Source SAR + Thermal IR</p>
+        <p><strong>Forecast Horizon:</strong> +24h Trajectory & RI Risk</p>
+        <p><strong>AI Confidence:</strong> <span id="ai-confidence" class="mono">96.4%</span></p>
+      </div>
+    </aside>
+
+    <!-- Main Scrollable Command Center -->
+    <main class="main-content">
+      <header class="page-header">
+        <h1>🌀 CycloneAI: Tracking & Early Warning System</h1>
+        <p class="caption">All-Weather AI Vision for Cyclone Identification, Classification & Trajectory Prediction</p>
+      </header>
+
+      <!-- 4 Top KPI Metrics -->
+      <section class="kpi-grid">
+        <div class="kpi-card">
+          <span class="kpi-label">Current Timestamp</span>
+          <span class="kpi-value mono" id="kpi-time">2020-05-19 12:00 UTC</span>
+        </div>
+        <div class="kpi-card">
+          <span class="kpi-label">Sustained Wind Speed</span>
+          <span class="kpi-value mono" id="kpi-wind">135 knots (250 km/h)</span>
+        </div>
+        <div class="kpi-card">
+          <span class="kpi-label">Central Pressure</span>
+          <span class="kpi-value mono" id="kpi-pressure">925 hPa</span>
+        </div>
+        <div class="kpi-card">
+          <span class="kpi-label">Intensity Stage</span>
+          <span class="kpi-value" id="kpi-stage">Super Cyclonic Storm</span>
+        </div>
+      </section>
+
+      <!-- Dynamic Severity Alert Banner -->
+      <div class="alert-banner alert-high" id="alert-banner">
+        <strong>🚨 HIGH SEVERITY ALERT:</strong> <span id="alert-text">Super Cyclonic Storm active. Catastrophic wind damage and extreme storm surge expected near landfall zone.</span>
+      </div>
+
+      <!-- Interactive GIS Trajectory Map -->
+      <section class="section-block">
+        <h2>Interactive GIS Trajectory & Uncertainty Cone</h2>
+        <div class="map-wrapper">
+          <div id="map"></div>
+          <div class="map-legend">
+            <span><i class="dot blue"></i> Historical Track</span>
+            <span><i class="dot orange"></i> AI 24h Forecast</span>
+            <span><i class="dot red"></i> Uncertainty & Wind Cone</span>
+          </div>
+        </div>
+
+        <!-- Expandable 24-Hour Projections Table -->
+        <details class="expander" open>
+          <summary>📊 View Detailed 24-Hour Projections Table</summary>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Forecast Horizon</th>
+                  <th>Projected Latitude</th>
+                  <th>Projected Longitude</th>
+                  <th>Predicted Wind (knots)</th>
+                  <th>Central Pressure (hPa)</th>
+                  <th>AI Classification</th>
+                </tr>
+              </thead>
+              <tbody id="projections-tbody"></tbody>
+            </table>
+          </div>
+        </details>
+      </section>
+
+      <!-- Emergency Response & Official Bulletin Generation -->
+      <section class="section-block">
+        <h2>📄 Emergency Response & Official Bulletin Generation</h2>
+        <div class="bulletin-grid">
+          <div class="bulletin-action">
+            <button id="download-bulletin-btn" class="primary-btn">
+              📥 Download Official IMD-Format Bulletin (Print / PDF)
+            </button>
+            <p class="helper-text">Generates an official formatted cyclone warning bulletin with 24h trajectory coordinates and operational advisories.</p>
+          </div>
+          <div class="advisory-box">
+            <h4>Actionable Operational Advisories</h4>
+            <ul id="advisory-list">
+              <li><strong>Fishermen Warning:</strong> Total suspension of fishing operations over deep sea and coastal waters.</li>
+              <li><strong>Port & Maritime:</strong> Hoist Great Danger Signal No. 10 at vulnerable coastal ports.</li>
+              <li><strong>Civil Evacuation:</strong> Evacuate low-lying coastal settlements within 15 km of projected landfall.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- Coastal District Vulnerability & Impact Estimator -->
+      <section class="section-block">
+        <h2>🛡️ Coastal District Vulnerability & Impact Estimator</h2>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Coastal District</th>
+                <th>State</th>
+                <th>Min Projected Distance</th>
+                <th>Estimated Impact ETA</th>
+                <th>Risk Status</th>
+              </tr>
+            </thead>
+            <tbody id="vulnerability-tbody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Multi-Language Emergency Broadcast Hub & Rapid Intensification -->
+      <section class="two-col-grid">
+        <div class="section-block">
+          <h2>📢 Multi-Language Emergency Broadcast Hub</h2>
+          <div class="control-group">
+            <label for="lang-select">Select Broadcast Language</label>
+            <select id="lang-select">
+              <option value="en">English</option>
+              <option value="hi">Hindi (हिन्दी)</option>
+              <option value="or">Odia (ଓଡ଼ିଆ)</option>
+              <option value="bn">Bengali (বাংলা)</option>
+            </select>
+          </div>
+          <div class="broadcast-message-box" id="broadcast-text"></div>
+          <button id="play-siren-btn" class="danger-btn">
+            🔊 Play Emergency Siren & Voice Broadcast
+          </button>
+        </div>
+
+        <div class="section-block">
+          <h2>⚡ Rapid Intensification (RI) Risk Assessment</h2>
+          <div class="ri-metrics">
+            <div class="ri-box">
+              <span>12h Intensity Trend</span>
+              <strong class="mono" id="ri-trend">+30 knots</strong>
+            </div>
+            <div class="ri-box">
+              <span>RI Probability (Next 24h)</span>
+              <strong class="mono text-red" id="ri-prob">78.5% (HIGH)</strong>
+            </div>
+          </div>
+          <div class="ri-drivers">
+            <p><strong>🌊 Sea Surface Temperature (SST):</strong> <span id="ri-sst">30.4°C (Favorable > 28.5°C)</span></p>
+            <p><strong>💨 Vertical Wind Shear:</strong> <span id="ri-shear">8 knots (Low Shear - Supports Deepening)</span></p>
+            <p><strong>🛰️ SAR Eye-Wall Symmetry:</strong> <span id="ri-eye">Closed Concentric Ring Detected</span></p>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
