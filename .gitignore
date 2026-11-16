@@ -1,5 +1,34 @@
-venv/
+﻿# Python cache
 __pycache__/
-*.pyc
+*.py[cod]
+*.pyo
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# Environment variables
 .env
+
+# IDE settings
 .vscode/
+
+# Temporary files
+*.log
+.DS_Store
+Thumbs.db
+
+# Temporary backend inspection files
+backend_main_preview.py
+.backend_main_preview.py
+
+# Local datasets - do not commit
+ml_engine/dataset/
+
+# Generated training and evaluation outputs
+ml_engine/forecasting/*predictions.csv
+ml_engine/forecasting/noaa_*.html
+
+# Unused model checkpoint
+ml_engine/weights/cyclone_resnet18.pth

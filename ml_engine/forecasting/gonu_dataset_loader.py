@@ -6,6 +6,7 @@ import torch
 
 from torch.utils.data import Dataset, DataLoader
 
+
 # --------------------------------------------------
 # PATHS
 # --------------------------------------------------
@@ -24,27 +25,35 @@ DATASET_DIR = os.path.join(
 IMAGE_DIR = os.path.join(DATASET_DIR, "images")
 MASK_DIR = os.path.join(DATASET_DIR, "masks")
 
-SPLITS_PATH = os.path.join(DATASET_DIR, "splits.csv")
+SPLITS_PATH = os.path.join(
+    DATASET_DIR,
+    "splits.csv"
+)
 
 
 # --------------------------------------------------
-# STEP 1: CREATE SPLIT-AWARE DATASET
+# GONU DATASET
 # --------------------------------------------------
 
 class GONUDataset(Dataset):
 
     def __init__(self, split):
 
-        if split not in ["train", "validation", "test"]:
+        if split not in ["train", "validation", "test", "all"]:
             raise ValueError(
-                "Split must be train, validation, or test."
+                "Split must be train, validation, test, or all."
             )
 
         self.labels = pd.read_csv(SPLITS_PATH)
 
-        self.labels = self.labels[
-            self.labels["split"] == split
-        ].reset_index(drop=True)
+        # Filter the requested split.
+        # "all" loads the complete dataset.
+        if split != "all":
+            self.labels = self.labels[
+                self.labels["split"] == split
+            ]
+
+        self.labels = self.labels.reset_index(drop=True)
 
         if len(self.labels) == 0:
             raise ValueError(
@@ -63,6 +72,7 @@ class GONUDataset(Dataset):
 
         image_name = row["image_file"]
 
+        # Generate mask filename from image filename.
         mask_name = image_name.replace(
             ".npy",
             "_mask.npy"
@@ -78,49 +88,64 @@ class GONUDataset(Dataset):
             mask_name
         )
 
-        # Load infrared image
+        # ------------------------------------------
+        # LOAD SATELLITE IMAGE
+        # ------------------------------------------
+
         image = np.load(
             image_path,
             allow_pickle=False
         ).astype(np.float32)
 
-        if image.ndim != 3 or image.shape[2] != 3:
+        if image.ndim != 3 or image.shape != (301, 301, 3):
             raise ValueError(
                 f"Unexpected image shape: {image.shape}"
             )
 
-        # Keep only one infrared channel
+        # Keep only the first infrared channel.
         image = image[:, :, 0]
 
         if not np.isfinite(image).all():
-            raise ValueError("Image contains NaN or Inf.")
+            raise ValueError(
+                "Image contains NaN or Inf."
+            )
 
         image = torch.from_numpy(
-            image
+            image.copy()
         ).unsqueeze(0)
 
-        # Load validity mask
+        # ------------------------------------------
+        # LOAD VALIDITY MASK
+        # ------------------------------------------
+
         mask = np.load(
             mask_path,
             allow_pickle=False
         ).astype(np.float32)
 
-        if mask.ndim != 2:
+        if mask.shape != (301, 301):
             raise ValueError(
                 f"Unexpected mask shape: {mask.shape}"
             )
 
         if not np.isfinite(mask).all():
-            raise ValueError("Mask contains NaN or Inf.")
+            raise ValueError(
+                "Mask contains NaN or Inf."
+            )
 
         if not np.isin(mask, [0, 1]).all():
-            raise ValueError("Unexpected mask values.")
+            raise ValueError(
+                "Unexpected mask values."
+            )
 
         mask = torch.from_numpy(
-            mask
+            mask.copy()
         ).unsqueeze(0)
 
-        # Load target values
+        # ------------------------------------------
+        # LOAD TARGET VALUES
+        # ------------------------------------------
+
         wind = float(row["wind_speed_knots"])
         pressure = float(row["pressure_mb"])
 
@@ -133,7 +158,7 @@ class GONUDataset(Dataset):
 
 
 # --------------------------------------------------
-# STEP 2: TEST ALL THREE DATA SPLITS
+# TEST ALL DATA SPLITS
 # --------------------------------------------------
 
 if __name__ == "__main__":
@@ -144,30 +169,39 @@ if __name__ == "__main__":
 
         dataset = GONUDataset(split)
 
-        dataloader = DataLoader(
+        loader = DataLoader(
             dataset,
             batch_size=8,
-            shuffle=(split == "train"),
-            num_workers=0
+            shuffle=False
         )
 
-        images, masks, targets = next(iter(dataloader))
+        images, masks, targets = next(iter(loader))
 
         print("\n========== BATCH INFORMATION ==========")
-
         print("Split:", split)
         print("Image shape:", images.shape)
         print("Mask shape:", masks.shape)
         print("Target shape:", targets.shape)
 
-        print("Wind range:",
-              targets[:, 0].min().item(),
-              "to",
-              targets[:, 0].max().item())
+        print(
+            "Wind range:",
+            targets[:, 0].min().item(),
+            "to",
+            targets[:, 0].max().item()
+        )
 
-        print("Pressure range:",
-              targets[:, 1].min().item(),
-              "to",
-              targets[:, 1].max().item())
+        print(
+            "Pressure range:",
+            targets[:, 1].min().item(),
+            "to",
+            targets[:, 1].max().item()
+        )
 
     print("\nSUCCESS: All three dataset splits loaded!")
+
+    # Test complete dataset.
+    print("\nTesting complete GONU dataset...")
+
+    full_dataset = GONUDataset("all")
+
+    print("Total observations:", len(full_dataset))
