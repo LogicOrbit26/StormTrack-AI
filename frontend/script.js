@@ -87,8 +87,9 @@ const apiJson = async (path, opts) => (await apiFetch(path, opts)).json();
 // 3. Map setup (unchanged look: dark Carto tiles)
 // ---------------------------------------------------------------------
 const map = L.map("map").setView([16.5, 86.5], 5);
-L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
-  attribution: "&copy; OpenStreetMap &copy; CARTO",
+L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}", {
+  attribution: "Tiles &copy; Esri",
+  maxZoom: 16,
 }).addTo(map);
 const mapLayers = L.layerGroup().addTo(map);
 
