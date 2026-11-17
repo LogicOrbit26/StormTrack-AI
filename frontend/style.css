@@ -267,9 +267,17 @@ input[type="range"] {
   margin-right: 5px;
 }
 
-.dot.blue { background: #38bdf8; }
-.dot.orange { background: #f97316; }
-.dot.red { background: #ef4444; }
+.dot.blue {
+  background: #38bdf8;
+}
+
+.dot.orange {
+  background: #f97316;
+}
+
+.dot.red {
+  background: #ef4444;
+}
 
 /* Expander & Tables */
 .expander {
@@ -296,7 +304,8 @@ table {
   font-size: 0.85rem;
 }
 
-th, td {
+th,
+td {
   padding: 10px 12px;
   text-align: left;
   border-bottom: 1px solid var(--border-color);
@@ -315,9 +324,20 @@ th {
   font-weight: 700;
 }
 
-.risk-high { background: rgba(239, 68, 68, 0.2); color: #fca5a5; }
-.risk-mod  { background: rgba(245, 158, 11, 0.2); color: #fcd34d; }
-.risk-low  { background: rgba(16, 185, 129, 0.2); color: #6ee7b7; }
+.risk-high {
+  background: rgba(239, 68, 68, 0.2);
+  color: #fca5a5;
+}
+
+.risk-mod {
+  background: rgba(245, 158, 11, 0.2);
+  color: #fcd34d;
+}
+
+.risk-low {
+  background: rgba(16, 185, 129, 0.2);
+  color: #6ee7b7;
+}
 
 /* Bulletin Section */
 .bulletin-grid {
@@ -327,7 +347,8 @@ th {
   align-items: center;
 }
 
-.primary-btn, .danger-btn {
+.primary-btn,
+.danger-btn {
   width: 100%;
   padding: 12px 16px;
   border: none;
@@ -348,7 +369,8 @@ th {
   color: white;
 }
 
-.primary-btn:hover, .danger-btn:hover {
+.primary-btn:hover,
+.danger-btn:hover {
   opacity: 0.9;
 }
 
@@ -419,7 +441,9 @@ th {
   font-size: 1.1rem;
 }
 
-.text-red { color: var(--accent-red); }
+.text-red {
+  color: var(--accent-red);
+}
 
 .ri-drivers {
   background: var(--bg-card);
@@ -431,7 +455,117 @@ th {
 }
 
 @media (max-width: 960px) {
-  .app-layout { flex-direction: column; }
-  .sidebar { width: 100%; height: auto; position: static; }
-  .kpi-grid, .bulletin-grid, .two-col-grid { grid-template-columns: 1fr; }
+  .app-layout {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    height: auto;
+    position: static;
+  }
+
+  .kpi-grid,
+  .bulletin-grid,
+  .two-col-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* =====================================================================
+   BACKEND-INTEGRATION ADDITIONS (all rules above are unchanged)
+   ===================================================================== */
+
+/* Accessible file input: hidden visually but still keyboard-focusable */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* Satellite image upload (sidebar) */
+.control-group .upload-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background: var(--bg-card);
+  border: 1px dashed var(--border-color);
+  border-radius: 8px;
+  padding: 14px 10px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  cursor: pointer;
+  word-break: break-all;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.control-group .upload-box:hover,
+.control-group .upload-box:focus-within,
+.control-group .upload-box.has-file {
+  border-color: var(--accent-blue);
+  color: var(--accent-blue);
+}
+
+.image-preview {
+  width: 100%;
+  max-height: 150px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+
+.image-preview[hidden],
+.inference-result[hidden] {
+  display: none;
+}
+
+.inference-result {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-left: 4px solid var(--accent-blue);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 0.8rem;
+  line-height: 1.7;
+}
+
+.inference-result .row {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.inference-result .row span:first-child {
+  color: var(--text-secondary);
+}
+
+.inference-result.error {
+  border-left-color: var(--accent-red);
+  color: #fca5a5;
+}
+
+/* Busy / disabled buttons while a request is in flight */
+.primary-btn:disabled,
+.danger-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* Extra severity colours for the RI probability read-out */
+.text-amber {
+  color: #f59e0b;
+}
+
+.text-green {
+  color: var(--accent-green);
+}
+
+/* Status line under the bulletin / audio buttons */
+.helper-text.error {
+  color: #fca5a5;
 }
