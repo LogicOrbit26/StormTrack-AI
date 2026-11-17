@@ -1,0 +1,52 @@
+{
+    "observation_time": "2007-05-31T09:00:00+00:00",
+    "intensity": {
+        "predicted_wind_speed_knots": 9.13,
+        "predicted_pressure_mb": 1009.81,
+        "model_status": "experimental_prototype",
+        "input_image": "2007151N14072.GONU.2007.05.31.0900.24.MET-7.013.hursat-b1.v06.npy"
+    },
+    "stage": {
+        "predicted_stage": "Developing",
+        "class_probabilities": {
+            "Developing": 0.9978,
+            "Mature": 0.0022,
+            "Weakening": 0.0
+        },
+        "model_name": "Temporal Random Forest",
+        "model_status": "experimental_prototype",
+        "label_type": "retrospective_global_peak_labels",
+        "stage_input_source": "cnn_prediction",
+        "temporal_features": {
+            "elapsed_hours": 3.0,
+            "wind_change_6h": 9.22,
+            "pressure_change_6h": -8.42
+        },
+        "unavailable_reason": null
+    },
+    "warnings": [
+        "Experimental research prototype only.",
+        "CNN intensity predictions have limited cross-storm generalization.",
+        "Random Forest was trained on IBTrACS observations, not CNN-generated measurements.",
+        "Lifecycle labels are retrospective global-peak labels.",
+        "Not validated for operational cyclone warnings."
+    ],
+    "visualization": {
+        "satellite_heatmap": "satellite_heatmap.png",
+        "source_image": "2007151N14072.GONU.2007.05.31.0900.24.MET-7.013.hursat-b1.v06.npy"
+    },
+    "coordinates": null,
+    "coordinate_note": "Coordinates are not predicted by the current ML models.",
+    "historical_reference_coordinates": {
+        "matched": true,
+        "source": "IBTrACS v04r01",
+        "storm_name": "GONU",
+        "sid": "2007151N14072",
+        "latitude": 13.9,
+        "longitude": 71.7,
+        "matched_time": "2007-05-31T09:00:00+00:00",
+        "prediction_observation_time": "2007-05-31T09:00:00+00:00",
+        "time_difference_minutes": 0.0,
+        "coordinate_type": "historical_reference_not_model_prediction"
+    }
+}

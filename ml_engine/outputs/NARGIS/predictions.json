@@ -1,0 +1,52 @@
+{
+    "observation_time": "2008-04-25T18:00:00+00:00",
+    "intensity": {
+        "predicted_wind_speed_knots": 49.9,
+        "predicted_pressure_mb": 990.01,
+        "model_status": "experimental_prototype",
+        "input_image": "2008117N11090.NARGIS.2008.04.25.1800.40.MET-7.018.hursat-b1.v06.npy"
+    },
+    "stage": {
+        "predicted_stage": "Developing",
+        "class_probabilities": {
+            "Developing": 0.7225,
+            "Mature": 0.0054,
+            "Weakening": 0.272
+        },
+        "model_name": "Temporal Random Forest",
+        "model_status": "experimental_prototype",
+        "label_type": "retrospective_global_peak_labels",
+        "stage_input_source": "cnn_prediction",
+        "temporal_features": {
+            "elapsed_hours": 3.0,
+            "wind_change_6h": -6.34,
+            "pressure_change_6h": 0.3
+        },
+        "unavailable_reason": null
+    },
+    "warnings": [
+        "Experimental research prototype only.",
+        "CNN intensity predictions have limited cross-storm generalization.",
+        "Random Forest was trained on IBTrACS observations, not CNN-generated measurements.",
+        "Lifecycle labels are retrospective global-peak labels.",
+        "Not validated for operational cyclone warnings."
+    ],
+    "coordinates": null,
+    "coordinate_note": "Historical coordinates will be matched from IBTrACS.",
+    "visualization": {
+        "satellite_heatmap": "satellite_heatmap.png",
+        "source_image": "2008117N11090.NARGIS.2008.04.25.1800.40.MET-7.018.hursat-b1.v06.npy"
+    },
+    "historical_reference_coordinates": {
+        "matched": true,
+        "source": "IBTrACS v04r01",
+        "storm_name": "NARGIS",
+        "sid": "2008117N11090",
+        "latitude": 10.8,
+        "longitude": 89.5,
+        "matched_time": "2008-04-25T18:00:00+00:00",
+        "prediction_observation_time": "2008-04-25T18:00:00+00:00",
+        "time_difference_minutes": 0.0,
+        "coordinate_type": "historical_reference_not_model_prediction"
+    }
+}

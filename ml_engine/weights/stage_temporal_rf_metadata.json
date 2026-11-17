@@ -1,0 +1,22 @@
+{
+    "model_name": "Temporal Random Forest",
+    "model_type": "RandomForestClassifier",
+    "features": [
+        "wind_speed_knots",
+        "pressure_mb",
+        "wind_change_6h",
+        "pressure_change_6h"
+    ],
+    "classes": [
+        "Developing",
+        "Mature",
+        "Weakening"
+    ],
+    "training_storm": "GONU",
+    "testing_storm": "NARGIS",
+    "model_status": "experimental_prototype",
+    "label_type": "retrospective_global_peak_labels",
+    "n_estimators": 300,
+    "max_depth": 4,
+    "random_state": 42
+}
